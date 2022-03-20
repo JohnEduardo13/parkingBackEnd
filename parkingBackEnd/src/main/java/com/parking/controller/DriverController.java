@@ -30,7 +30,7 @@ public class DriverController {
 		return ResponseEntity.ok(driver);
 	}
 	
-	@RequestMapping(value="{cc}")
+	@RequestMapping(value="/id/{cc}")
 	public ResponseEntity<DriverModel> FindByDriver(@PathVariable("cc") int cedula){
 		Optional<DriverModel> optionalDriver = driverRepository.findById(cedula);
 		if(optionalDriver.isPresent()){
@@ -40,10 +40,25 @@ public class DriverController {
 		}
 	}
 	
-	@PostMapping("/save")
+	@RequestMapping(value="/email/{correo}")
+	public ResponseEntity<DriverModel> FindByEmail(@PathVariable("correo") String email){
+		Optional<DriverModel> optionalDriver = driverRepository.findByEmail(email);
+		if(optionalDriver.isPresent()){
+			return ResponseEntity.ok(optionalDriver.get());
+		}else {
+			return ResponseEntity.noContent().build();
+		}
+	}
+	
+	@PostMapping("/save/{cc}")
 	public ResponseEntity<DriverModel> CreateDriver(@RequestBody DriverModel driver){
-		DriverModel newDriver = driverRepository.save(driver);
-		return ResponseEntity.ok(newDriver);
+		Optional<DriverModel> optionalDriver = driverRepository.findById(driver.getCedula());
+		if(optionalDriver.isPresent()) {
+			return ResponseEntity.badRequest().build();
+		}else {
+			DriverModel newDriver = driverRepository.save(driver);
+			return ResponseEntity.ok(newDriver);
+		}
 	}
 	
 	@DeleteMapping("/delete/{cc}")
@@ -58,6 +73,9 @@ public class DriverController {
 		if(optionalDriver.isPresent()){
 			DriverModel updateDriver = optionalDriver.get();
 			//updateDriver.setPassword(user.getPassword());
+			updateDriver.setNombre(driver.getNombre());
+			updateDriver.setApellido(driver.getApellido());
+			updateDriver.setTelefono(driver.getTelefono());
 			driverRepository.save(updateDriver);
 			return ResponseEntity.ok(updateDriver);
 		}else {

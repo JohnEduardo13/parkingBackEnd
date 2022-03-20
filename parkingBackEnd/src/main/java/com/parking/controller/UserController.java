@@ -40,10 +40,15 @@ public class UserController {
 		}
 	}
 	
-	@PostMapping("/save")
+	@PostMapping("/save/{email}")
 	public ResponseEntity<UserModel> CreateUser(@RequestBody UserModel user){
-		UserModel newUser = userRepository.save(user);
-		return ResponseEntity.ok(newUser);
+		Optional<UserModel> optionalUser = userRepository.findById(user.getUsuario());
+		if(optionalUser.isPresent()) {
+			return ResponseEntity.badRequest().build();
+		}else {
+			UserModel newUser = userRepository.save(user);
+			return ResponseEntity.ok(newUser);
+		}
 	}
 	
 	@DeleteMapping("/delete/{user}")
